@@ -1,22 +1,22 @@
 import { ProcessedMusicChunk } from "src/shared/interfaces/music-chunk";
-import { MusicChunk } from "../entities/music-chunk.entity";
-import { IMusicChunkRepository } from "./music-chunk.repository";
+import { SongChunk } from "../entities/song-chunk.entity";
+import { ISongChunkRepository } from "./song-chunk.repository";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 
-export class MongoMusicChunkRepository implements IMusicChunkRepository {
+export class MongoSongChunkRepository implements ISongChunkRepository {
   public constructor(
-    @InjectModel("music-chunk")
-    private readonly musicChunkModel: Model<MusicChunk>,
+    @InjectModel("song-chunk")
+    private readonly musicChunkModel: Model<SongChunk>,
   ) {}
 
   public async createMany(musicChunks: ProcessedMusicChunk[]): Promise<void> {
     await this.musicChunkModel.insertMany(musicChunks, { ordered: true });
   }
 
-  public findAllByMusic(music: string): Promise<MusicChunk[]> {
+  public findAllBySong(song: string): Promise<SongChunk[]> {
     return this.musicChunkModel
-      .find({ music })
+      .find({ song })
       .select("url duration")
       .sort({ _id: 1 })
       .exec();

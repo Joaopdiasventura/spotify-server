@@ -1,6 +1,6 @@
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
-export class FindMusicDto {
+export class FindSongDto {
   @IsOptional()
   @IsString()
   public title?: string;

@@ -56,7 +56,7 @@ export class FileService {
   }
 
   public async uploadMusicInChunks(
-    music: string,
+    song: string,
     file: Express.Multer.File,
   ): Promise<ProcessedMusicChunk[]> {
     try {
@@ -80,12 +80,12 @@ export class FileService {
       const chunks: ProcessedMusicChunk[] = [];
 
       for (let i = 0; i < totalBytes; i += chunkSizeBytes) {
-        const chunk = file.buffer.subarray(i, i + chunkSizeBytes);
+        const segment = file.buffer.subarray(i, i + chunkSizeBytes);
 
         const fakeFile: Express.Multer.File = {
           ...file,
-          buffer: chunk,
-          size: chunk.length,
+          buffer: segment,
+          size: segment.length,
           originalname: `${Date.now()}-${i}.mp3`,
         };
 
@@ -93,7 +93,7 @@ export class FileService {
 
         chunks.push({
           url,
-          music,
+          song,
           duration: Math.min(
             chunkSizeSeconds,
             totalDuration - i / bytesPerSecond,

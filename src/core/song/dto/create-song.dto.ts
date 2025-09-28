@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString } from "class-validator";
 
-export class CreateMusicDto {
+export class CreateSongDto {
   @IsString({ message: "Digite um titulo válido" })
   @IsNotEmpty({ message: "Digite um titulo válido" })
   public title: string;

@@ -1,5 +1,5 @@
 export interface ProcessedMusicChunk {
   url: string;
-  music: string;
+  song: string;
   duration: number;
 }

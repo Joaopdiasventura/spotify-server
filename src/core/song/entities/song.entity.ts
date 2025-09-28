@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 import { Document } from "mongoose";
 
 @Schema({ versionKey: false, timestamps: true })
-export class Music extends Document<string, Music, Music> {
+export class Song extends Document<string, Song, Song> {
   @Prop({ required: true })
   public title: string;
 
@@ -22,4 +22,4 @@ export class Music extends Document<string, Music, Music> {
   public duration: number;
 }
 
-export const MusicSchema = SchemaFactory.createForClass(Music);
+export const SongSchema = SchemaFactory.createForClass(Song);

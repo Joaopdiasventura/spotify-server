@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
-import { MusicModule } from "./music/music.module";
-import { MusicChunkModule } from "./music-chunk/music-chunk.module";
+import { SongModule } from "./song/song.module";
+import { SongChunkModule } from "./song-chunk/song-chunk.module";
 
 @Module({
-  imports: [MusicModule, MusicChunkModule],
+  imports: [SongModule, SongChunkModule],
 })
 export class CoreModule {}

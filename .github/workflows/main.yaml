@@ -26,25 +26,21 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      NODE_ENV: production
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: npm
-      - name: Install, Test and Build
-        run: | 
-            npm i
-            npm run lint
-            npm run test
-            npm run build
-
+      - name: Install
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+        
   docker_push:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest

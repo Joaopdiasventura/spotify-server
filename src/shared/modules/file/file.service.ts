@@ -64,7 +64,7 @@ export class FileService {
         throw new BadRequestException("Arquivo inválido");
 
       const chunkSizeSeconds =
-        this.configService.get<number>("chunkSizeSeconds")!;
+        this.configService.get<number>("chunkSizeSeconds") ?? 10;
 
       const metadata = await parseBuffer(file.buffer, {
         mimeType: file.mimetype,
@@ -73,35 +73,55 @@ export class FileService {
 
       const totalDuration = metadata.format.duration ?? 0;
       const totalBytes = file.buffer.length;
+
+      if (!totalDuration || totalDuration <= 0) {
+        const url = await this.storage.upload(file);
+        return [{ url, song, duration: 0 }];
+      }
+
       const bytesPerSecond = totalBytes / totalDuration;
+      const chunkSizeBytes = Math.max(
+        1,
+        Math.floor(bytesPerSecond * chunkSizeSeconds),
+      );
+      const numChunks = Math.ceil(totalBytes / chunkSizeBytes);
 
-      const chunkSizeBytes = bytesPerSecond * chunkSizeSeconds;
+      const uploadPromises: Promise<{
+        index: number;
+        url: string;
+        duration: number;
+      }>[] = [];
 
-      const chunks: ProcessedMusicChunk[] = [];
-
-      for (let i = 0; i < totalBytes; i += chunkSizeBytes) {
-        const segment = file.buffer.subarray(i, i + chunkSizeBytes);
-
+      for (let idx = 0; idx < numChunks; idx++) {
+        const start = idx * chunkSizeBytes;
+        const end = Math.min(start + chunkSizeBytes, totalBytes);
+        const segmentView = file.buffer.subarray(start, end);
+        const segment = Buffer.from(segmentView);
         const fakeFile: Express.Multer.File = {
           ...file,
           buffer: segment,
           size: segment.length,
-          originalname: `${Date.now()}-${i}.mp3`,
+          originalname: `${song}-${String(idx).padStart(5, "0")}.mp3`,
         };
-
-        const url = await this.storage.upload(fakeFile);
-
-        chunks.push({
-          url,
-          song,
-          duration: Math.min(
-            chunkSizeSeconds,
-            totalDuration - i / bytesPerSecond,
-          ),
-        });
+        const duration = Math.min(
+          chunkSizeSeconds,
+          Math.max(0, totalDuration - start / bytesPerSecond),
+        );
+        const p = (async (): Promise<{
+          index: number;
+          url: string;
+          duration: number;
+        }> => {
+          const url = await this.storage.upload(fakeFile);
+          return { index: idx, url, duration };
+        })();
+        uploadPromises.push(p);
       }
 
-      return chunks;
+      const results = await Promise.all(uploadPromises);
+      results.sort((a, b) => a.index - b.index);
+
+      return results.map((r) => ({ url: r.url, song, duration: r.duration }));
     } catch (error) {
       Logger.error(error, "FileService.uploadMusicInChunks");
       throw new InternalServerErrorException(

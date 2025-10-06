@@ -4,7 +4,6 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { AppConfig } from "./config/app.config";
 import { DatabaseConfig } from "./config/db.config";
 import { CoreModule } from "./core/core.module";
-import { FileModule } from './shared/modules/file/file.module';
 
 @Module({
   imports: [
@@ -17,7 +16,6 @@ import { FileModule } from './shared/modules/file/file.module';
       }),
     }),
     CoreModule,
-    FileModule,
   ],
   controllers: [],
   providers: [],

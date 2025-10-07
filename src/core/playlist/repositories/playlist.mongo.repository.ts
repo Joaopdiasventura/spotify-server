@@ -6,7 +6,7 @@ import { Playlist } from "../entities/playlist.entity";
 import { IPlaylistRepsitory } from "./playlist.repository";
 import { FilterQuery, Model, PipelineStage } from "mongoose";
 
-export class MongoPlaylistDto implements IPlaylistRepsitory {
+export class MongoPlaylistRepository implements IPlaylistRepsitory {
   public constructor(
     @InjectModel("Playlist") private readonly playlistModel: Model<Playlist>,
   ) {}

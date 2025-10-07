@@ -11,9 +11,6 @@ export class Playlist extends Document<string, Playlist, Playlist> {
 
   @Prop({ required: true, type: [String], ref: "Song" })
   public songs: string[];
-
-  @Prop({ required: true })
-  public isPublic: boolean;
 }
 
 export const PlaylistSchema = SchemaFactory.createForClass(Playlist);

@@ -5,6 +5,7 @@ import { MongooseModule } from "@nestjs/mongoose";
 import { PlaylistSchema } from "./entities/playlist.entity";
 import { UserModule } from "../user/user.module";
 import { SongModule } from "../song/song.module";
+import { MongoPlaylistRepository } from "./repositories/playlist.mongo.repository";
 
 @Module({
   imports: [
@@ -13,6 +14,9 @@ import { SongModule } from "../song/song.module";
     SongModule,
   ],
   controllers: [PlaylistController],
-  providers: [PlaylistService],
+  providers: [
+    PlaylistService,
+    { provide: "IPlaylistRepository", useClass: MongoPlaylistRepository },
+  ],
 })
 export class PlaylistModule {}

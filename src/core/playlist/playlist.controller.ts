@@ -1,34 +1,53 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PlaylistService } from './playlist.service';
-import { CreatePlaylistDto } from './dto/create-playlist.dto';
-import { UpdatePlaylistDto } from './dto/update-playlist.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from "@nestjs/common";
+import { PlaylistService } from "./playlist.service";
+import { CreatePlaylistDto } from "./dto/create-playlist.dto";
+import { UpdatePlaylistDto } from "./dto/update-playlist.dto";
+import { FindPlaylistDto } from "./dto/find-playlist.dto";
+import { Playlist } from "./entities/playlist.entity";
+import { Message } from "../../shared/interfaces/messages";
 
-@Controller('playlist')
+@Controller("playlist")
 export class PlaylistController {
-  constructor(private readonly playlistService: PlaylistService) {}
+  public constructor(private readonly playlistService: PlaylistService) {}
 
   @Post()
-  create(@Body() createPlaylistDto: CreatePlaylistDto) {
+  public create(
+    @Body() createPlaylistDto: CreatePlaylistDto,
+  ): Promise<Message> {
     return this.playlistService.create(createPlaylistDto);
   }
 
+  @Get(":id")
+  public findById(@Param("id") id: string): Promise<Playlist> {
+    return this.playlistService.findById(id);
+  }
+
   @Get()
-  findAll() {
-    return this.playlistService.findAll();
+  public findMany(
+    @Query() findPlaylistDto: FindPlaylistDto,
+  ): Promise<Playlist[]> {
+    return this.playlistService.findMany(findPlaylistDto);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.playlistService.findOne(+id);
+  @Patch(":id")
+  public update(
+    @Param("id") id: string,
+    @Body() updatePlaylistDto: UpdatePlaylistDto,
+  ): Promise<Message> {
+    return this.playlistService.update(id, updatePlaylistDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePlaylistDto: UpdatePlaylistDto) {
-    return this.playlistService.update(+id, updatePlaylistDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.playlistService.remove(+id);
+  @Delete(":id")
+  public delete(@Param("id") id: string): Promise<Message> {
+    return this.playlistService.delete(id);
   }
 }

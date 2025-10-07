@@ -18,5 +18,6 @@ import { SongChunkModule } from "../song-chunk/song-chunk.module";
     SongService,
     { provide: "ISongRepository", useClass: MongoSongRepository },
   ],
+  exports: [SongService],
 })
 export class SongModule {}

@@ -18,5 +18,6 @@ import { EmailModule } from "../../shared/modules/email/email.module";
     UserService,
     { provide: "IUserRepository", useClass: MongoUserRepository },
   ],
+  exports: [UserService],
 })
 export class UserModule {}

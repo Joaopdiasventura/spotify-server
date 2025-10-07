@@ -36,7 +36,7 @@ describe("SongController", () => {
   });
 
   it("create forwards DTO and files to service", async () => {
-    const dto = { title: "t", description: "d", artist: "a", lyrics: "l" };
+    const dto = { user: "u1", title: "t", description: "d", artist: "a", lyrics: "l" };
     const song: Express.Multer.File = {
       fieldname: "song",
       originalname: "s.mp3",

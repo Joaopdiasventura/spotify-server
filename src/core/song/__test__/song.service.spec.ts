@@ -8,6 +8,8 @@ import { CreateSongDto } from "../dto/create-song.dto";
 import { FindSongDto } from "../dto/find-song.dto";
 import { Song } from "../entities/song.entity";
 import type { ProcessedMusicChunk } from "../../../shared/interfaces/music-chunk";
+import { UserService } from "../../user/user.service";
+import type { User } from "../../user/entities/user.entity";
 
 // Avoid importing real music-metadata via FileService dependency chain
 jest.mock("music-metadata", () => ({
@@ -33,6 +35,7 @@ describe("SongService", () => {
             findMany: jest.fn(),
           },
         },
+        { provide: UserService, useValue: { findById: jest.fn() } },
         {
           provide: "ISongChunkRepository",
           useValue: {
@@ -68,6 +71,7 @@ describe("SongService", () => {
 
   it("create: uploads thumbnail, reads duration, creates song and chunks", async () => {
     const dto = new CreateSongDto();
+    dto.user = "u1";
     dto.title = "t";
     dto.description = "d";
     dto.artist = "a";
@@ -97,6 +101,11 @@ describe("SongService", () => {
       stream: null as unknown as NodeJS.ReadableStream,
     };
 
+    const userSvc = moduleRef.get<UserService>(UserService) as jest.Mocked<UserService>;
+    const findUserSpy = jest
+      .spyOn(userSvc, "findById")
+      .mockResolvedValueOnce({ id: "u1" } as unknown as User);
+
     const uploadSpy = jest
       .spyOn(fileSvc, 'upload')
       .mockResolvedValueOnce('thumb-url');
@@ -117,6 +126,7 @@ describe("SongService", () => {
 
     const res = await service.create(dto, songFile, thumbFile);
 
+    expect(findUserSpy).toHaveBeenCalledWith("u1");
     expect(uploadSpy).toHaveBeenCalledWith(thumbFile);
     expect(getAudioDurationSpy).toHaveBeenCalledWith(songFile);
     expect(createRepoSpy).toHaveBeenCalledWith({

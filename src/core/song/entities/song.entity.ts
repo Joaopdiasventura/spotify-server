@@ -3,6 +3,7 @@ import { Document } from "mongoose";
 
 @Schema({ versionKey: false, timestamps: true })
 export class Song extends Document<string, Song, Song> {
+
   @Prop({ required: true })
   public title: string;
 
@@ -17,6 +18,9 @@ export class Song extends Document<string, Song, Song> {
 
   @Prop({ required: true })
   public thumbnail: string;
+
+  @Prop({ required: true, type: String, ref: "User" })
+  public user: string;
 
   @Prop({ required: true })
   public duration: number;

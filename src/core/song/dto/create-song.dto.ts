@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsMongoId, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateSongDto {
   @IsString({ message: "Digite um titulo válido" })
@@ -16,6 +16,9 @@ export class CreateSongDto {
   @IsString({ message: "Digite uma letra válida" })
   @IsNotEmpty({ message: "Digite uma letra válida" })
   public lyrics: string;
+
+  @IsMongoId({ message: "faça login novamente" })
+  public user: string;
 
   public duration: number;
   public thumbnail: string;

@@ -2,16 +2,18 @@ import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateSongDto } from "./dto/create-song.dto";
 import { Message } from "../../shared/interfaces/messages";
 import { FileService } from "../../shared/modules/file/file.service";
-import type { ISongRepository } from "./repositories/song.repository";
 import { SongChunkService } from "../song-chunk/song-chunk.service";
 import { Song } from "./entities/song.entity";
 import { FindSongDto } from "./dto/find-song.dto";
+import { UserService } from "../user/user.service";
+import type { ISongRepository } from "./repositories/song.repository";
 
 @Injectable()
 export class SongService {
   public constructor(
     @Inject("ISongRepository")
     private readonly songRepository: ISongRepository,
+    private readonly userService: UserService,
     private readonly songChunkService: SongChunkService,
     private readonly fileService: FileService,
   ) {}
@@ -21,9 +23,9 @@ export class SongService {
     songFile: Express.Multer.File,
     thumbnailFile: Express.Multer.File,
   ): Promise<Message> {
+    await this.userService.findById(createSongDto.user);
     createSongDto.thumbnail = await this.fileService.upload(thumbnailFile);
-    createSongDto.duration =
-      await this.fileService.getAudioDuration(songFile);
+    createSongDto.duration = await this.fileService.getAudioDuration(songFile);
     const song = await this.songRepository.create(createSongDto);
     const chunks = await this.fileService.uploadMusicInChunks(
       song.id,

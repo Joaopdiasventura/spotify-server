@@ -83,6 +83,7 @@ Estrutura principal de pastas:
 - Criar Música (POST `/song`)
   - `SongController` recebe DTO e arquivos (`FileFieldsInterceptor`) e delega ao service (`src/core/song/song.controller.ts`).
   - `SongService`:
+    - Valida a existência do usuário (`UserService.findById`) a partir do campo `user` do DTO.
     - Faz upload do thumbnail e calcula duração (`FileService`).
     - Persiste a música via `ISongRepository` e obtém o `id`.
     - Divide o áudio em chunks e faz upload em paralelo; persiste metadados via `SongChunkService`.
@@ -177,7 +178,7 @@ Base: `http://localhost:3000`
 
 - POST `/song`
   - Upload multipart/form-data
-  - Body (CreateSongDto): `title`, `description`, `artist`, `lyrics`
+  - Body (CreateSongDto): `user`, `title`, `description`, `artist`, `lyrics`
   - Files: `song` (áudio), `thumbnail` (imagem)
   - Resposta: `{ "message": "Musica adicionada com sucesso" }`
 
@@ -185,6 +186,7 @@ Exemplo cURL:
 
 ```
 curl -X POST http://localhost:3000/song \
+  -F "user=<USER_ID>" \
   -F "title=Minha Música" \
   -F "description=Descrição" \
   -F "artist=Artista" \
@@ -249,14 +251,14 @@ curl -X POST http://localhost:3000/song \
 ## Entidades e DTOs
 
 - Song (`src/core/song/entities/song.entity.ts`)
-  - `title`, `description`, `artist`, `lyrics`, `thumbnail`, `duration`
+  - `user`, `title`, `description`, `artist`, `lyrics`, `thumbnail`, `duration`
   - Timestamps habilitados (Mongoose)
 
 - SongChunk (`src/core/song-chunk/entities/song-chunk.entity.ts`)
   - `url`, `duration`, `song` (ref: `Song`)
 
 - CreateSongDto (`src/core/song/dto/create-song.dto.ts`)
-  - `title`, `description`, `artist`, `lyrics` (validação via class-validator)
+  - `user`, `title`, `description`, `artist`, `lyrics`
 
 - FindSongDto (`src/core/song/dto/find-song.dto.ts`)
   - Filtros opcionais + `orderBy`, `limit`, `page`

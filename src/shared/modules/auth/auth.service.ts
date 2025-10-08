@@ -21,7 +21,7 @@ export class AuthService {
   public async decodeToken(token: string): Promise<string> {
     try {
       const result = await this.jwtService.verifyAsync(token);
-      return result.sub ? result.sub : result;
+      return result;
     } catch {
       throw new BadRequestException("Faça login novamente");
     }

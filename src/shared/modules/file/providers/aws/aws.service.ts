@@ -24,7 +24,7 @@ export class AwsService implements FileStorageProvider {
   }
 
   public async upload(file: Express.Multer.File): Promise<string> {
-    const key = `${Date.now()}-${file.originalname}`;
+    const key = `son-streaming-${Date.now()}-${file.originalname}`;
     const uploader = new Upload({
       client: this.s3,
       params: {

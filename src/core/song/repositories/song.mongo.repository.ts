@@ -21,15 +21,12 @@ export class MongoSongRepository implements ISongRepository {
   public findMany(findSongDto: FindSongDto): Promise<Song[]> {
     const pipeline: PipelineStage[] = [];
 
-    const match: FilterQuery<Song> = {};
-    if (findSongDto.title)
-      match.title = { $regex: findSongDto.title, $options: "i" };
-    if (findSongDto.description)
-      match.description = { $regex: findSongDto.description, $options: "i" };
-    if (findSongDto.artist)
-      match.artist = { $regex: findSongDto.artist, $options: "i" };
-
-    if (Object.keys(match).length > 0) pipeline.push({ $match: match });
+    const or: FilterQuery<Song>[] = [];
+    if (findSongDto.title) or.push({ title: { $regex: findSongDto.title, $options: 'i' } });
+    if (findSongDto.description) or.push({ description: { $regex: findSongDto.description, $options: 'i' } });
+    if (findSongDto.artist) or.push({ artist: { $regex: findSongDto.artist, $options: 'i' } });
+  
+    if (or.length) pipeline.push({ $match: { $or: or } });
 
     if (findSongDto.orderBy) {
       const [field, direction] = findSongDto.orderBy.split(":");

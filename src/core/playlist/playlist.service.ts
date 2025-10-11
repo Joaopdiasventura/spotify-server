@@ -1,4 +1,9 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
 import { CreatePlaylistDto } from "./dto/create-playlist.dto";
 import { UpdatePlaylistDto } from "./dto/update-playlist.dto";
 import { FindPlaylistDto } from "./dto/find-playlist.dto";
@@ -19,8 +24,11 @@ export class PlaylistService {
 
   public async create(createPlaylistDto: CreatePlaylistDto): Promise<Message> {
     await this.userService.findById(createPlaylistDto.user);
+    if (!createPlaylistDto.songs.length)
+      throw new BadRequestException("Selecione ao menos uma musica");
     for (const song of createPlaylistDto.songs)
       await this.songService.findById(song);
+    createPlaylistDto.firstSong = createPlaylistDto.songs[0];
     const { id } = await this.playlistRepository.create(createPlaylistDto);
     return { message: id };
   }

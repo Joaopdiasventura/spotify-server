@@ -18,7 +18,7 @@ export class MongoPlaylistRepository implements IPlaylistRepsitory {
   public findById(id: string): Promise<Playlist | null> {
     return this.playlistModel
       .findById(id)
-      .populate({ path: "songs", select: "-description -lyrics" })
+      .populate({ path: "songs", select: "-user" })
       .populate({ path: "user", select: "name" })
       .exec();
   }
@@ -31,23 +31,41 @@ export class MongoPlaylistRepository implements IPlaylistRepsitory {
       match.name = { $regex: findPlaylistDto.name, $options: "i" };
     if (findPlaylistDto.user)
       match.user = { $regex: findPlaylistDto.user, $options: "i" };
-
     if (Object.keys(match).length > 0) pipeline.push({ $match: match });
+
+    pipeline.push({
+      $lookup: {
+        from: "songs",
+        let: { songId: "$firstSong" },
+        pipeline: [
+          { $match: { $expr: { $eq: [{ $toString: "$_id" }, "$$songId"] } } },
+          { $project: { _id: 0, thumbnail: 1, title: 1, artist: 1 } },
+        ],
+        as: "firstSong",
+      },
+    });
+
+    pipeline.push({
+      $set: {
+        firstSong: { $ifNull: [{ $arrayElemAt: ["$firstSong", 0] }, null] },
+      },
+    });
 
     if (findPlaylistDto.orderBy) {
       const [field, direction] = findPlaylistDto.orderBy.split(":");
-      if (field && direction)
+      if (field && direction) {
         pipeline.push({
-          $sort: {
-            [field]: direction == "desc" ? -1 : 1,
-            _id: 1,
-          },
+          $sort: { [field]: direction == "desc" ? -1 : 1, _id: 1 },
         });
-    } else pipeline.push({ $sort: { createdAt: -1, title: 1, _id: 1 } });
+      }
+    } else {
+      pipeline.push({ $sort: { createdAt: -1, title: 1, _id: 1 } });
+    }
 
     if (findPlaylistDto.limit && findPlaylistDto.limit > 0) {
-      if (findPlaylistDto.page && findPlaylistDto.page >= 0)
+      if (findPlaylistDto.page && findPlaylistDto.page >= 0) {
         pipeline.push({ $skip: findPlaylistDto.page * findPlaylistDto.limit });
+      }
       pipeline.push({ $limit: findPlaylistDto.limit });
     }
 

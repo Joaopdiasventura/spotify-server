@@ -1,10 +1,4 @@
-import {
-  IsArray,
-  IsBoolean,
-  IsMongoId,
-  IsNotEmpty,
-  IsString,
-} from "class-validator";
+import { IsArray, IsMongoId, IsNotEmpty, IsString } from "class-validator";
 
 export class CreatePlaylistDto {
   @IsMongoId({ message: "faça login novamente" })
@@ -18,6 +12,5 @@ export class CreatePlaylistDto {
   @IsMongoId({ each: true, message: "Selecione apenas musicas válidas" })
   public songs: string[];
 
-  @IsBoolean()
-  public isPublic: boolean;
+  public firstSong: string;
 }

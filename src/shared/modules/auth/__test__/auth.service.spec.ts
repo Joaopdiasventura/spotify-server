@@ -62,7 +62,7 @@ describe("AuthService", () => {
 
   it("decodeToken returns sub when present", async () => {
     const id = await service.decodeToken("tok");
-    expect(id).toBe("user-id");
+    expect(id).toBe({ sub: "user-id" });
   });
 
   it("decodeToken returns raw result when sub absent", async () => {
@@ -74,7 +74,9 @@ describe("AuthService", () => {
 
   it("decodeToken throws BadRequest on error", async () => {
     jest.spyOn(jwt, "verifyAsync").mockRejectedValueOnce(new Error("bad"));
-    await expect(service.decodeToken("tok")).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.decodeToken("tok")).rejects.toBeInstanceOf(
+      BadRequestException,
+    );
   });
 
   it("hashPassword uses configured salts", async () => {
@@ -85,7 +87,9 @@ describe("AuthService", () => {
   it("comparePassword resolves when valid and throws when invalid", async () => {
     await expect(service.comparePassword("p", "h")).resolves.toBeUndefined();
     (bcrypt.compare as jest.Mock).mockResolvedValueOnce(false);
-    await expect(service.comparePassword("p", "h")).rejects.toBeInstanceOf(UnauthorizedException);
+    await expect(service.comparePassword("p", "h")).rejects.toBeInstanceOf(
+      UnauthorizedException,
+    );
   });
 
   it("generateRandomPassword respects configured size and diversity", () => {

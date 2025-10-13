@@ -31,8 +31,11 @@ async function bootstrap(): Promise<Express> {
     app.use("/uploads", Static(join(__dirname, "..", "uploads")));
 
   await app.init();
+  await app.listen(configService.get<number>("port")!);
   return app.getHttpAdapter().getInstance();
 }
+
+bootstrap();
 
 export default async function handler(
   req: Request,
